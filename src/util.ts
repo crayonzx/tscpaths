@@ -1,3 +1,5 @@
+import { readFileSync } from 'fs';
+import * as json5 from 'json5';
 import { dirname, resolve } from 'path';
 
 /*
@@ -35,6 +37,7 @@ export const mapPaths = (
 };
 
 export const loadConfig = (file: string): ITSConfig => {
+  const fileData = readFileSync(file, { encoding: 'UTF-8' });
   const {
     extends: ext,
     compilerOptions: { baseUrl, outDir, paths } = {
@@ -42,7 +45,7 @@ export const loadConfig = (file: string): ITSConfig => {
       outDir: undefined,
       paths: undefined,
     },
-  } = require(file) as IRawTSConfig;
+  } = json5.parse(fileData) as IRawTSConfig;
 
   const config: ITSConfig = {};
   if (baseUrl) {
