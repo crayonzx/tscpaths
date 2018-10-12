@@ -120,7 +120,8 @@ const absToRel = (modulePath: string, outFile: string): string => {
 };
 
 const requireRegex = /(?:import|require)\(['"]([^'"]*)['"]\)/g;
-const importRegex = /from ['"]([^'"]*)['"]/g;
+const importRegex = /import ['"]([^'"]*)['"]/g;
+const fromRegex = /from ['"]([^'"]*)['"]/g;
 
 const replaceImportStatement = (
   orig: string,
@@ -130,7 +131,7 @@ const replaceImportStatement = (
   const index = orig.indexOf(matched);
   return (
     orig.substring(0, index) +
-    absToRel(matched, outFile) +
+    absToRel(matched, outFile).replace(/\\/g, '/') +
     orig.substring(index + matched.length)
   );
 };
@@ -138,6 +139,9 @@ const replaceImportStatement = (
 const replaceAlias = (text: string, outFile: string): string =>
   text
     .replace(requireRegex, (orig, matched) =>
+      replaceImportStatement(orig, matched, outFile)
+    )
+    .replace(fromRegex, (orig, matched) =>
       replaceImportStatement(orig, matched, outFile)
     )
     .replace(importRegex, (orig, matched) =>
