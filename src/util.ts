@@ -12,15 +12,12 @@ import { dirname, resolve } from 'path';
 
 export interface IRawTSConfig {
   extends?: string;
-  compilerOptions?: {
-    baseUrl?: string;
-    outDir?: string;
-    paths?: { [key: string]: string[] };
-  };
+  compilerOptions?: ITSConfig;
 }
 
 export interface ITSConfig {
   baseUrl?: string;
+  rootDir?: string;
   outDir?: string;
   paths?: { [key: string]: string[] };
 }
@@ -40,16 +37,15 @@ export const loadConfig = (file: string): ITSConfig => {
   const fileData = readFileSync(file, { encoding: 'UTF-8' });
   const {
     extends: ext,
-    compilerOptions: { baseUrl, outDir, paths } = {
-      baseUrl: undefined,
-      outDir: undefined,
-      paths: undefined,
-    },
+    compilerOptions: { baseUrl, rootDir, outDir, paths } = {} as ITSConfig,
   } = json5.parse(fileData) as IRawTSConfig;
 
   const config: ITSConfig = {};
   if (baseUrl) {
     config.baseUrl = baseUrl;
+  }
+  if (rootDir) {
+    config.rootDir = rootDir;
   }
   if (outDir) {
     config.outDir = outDir;

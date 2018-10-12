@@ -32,22 +32,11 @@ const { project, src, out } = program as {
   src?: string;
   out?: string;
 };
-if (!project) {
-  throw new Error('--project must be specified');
-}
-if (!src) {
-  throw new Error('--src must be specified');
-}
 
-const configFile = resolve(process.cwd(), project);
+const configFile = resolve(process.cwd(), project || 'tsconfig.json');
 logConsole(`tsconfig.json: ${configFile}`);
-const srcRoot = resolve(src);
-logConsole(`src: ${srcRoot}`);
 
-const outRoot = out && resolve(out);
-logConsole(`out: ${outRoot}`);
-
-const { baseUrl, outDir, paths } = loadConfig(configFile);
+const { baseUrl, rootDir, outDir, paths } = loadConfig(configFile);
 
 if (!baseUrl) {
   throw new Error('compilerOptions.baseUrl is not set');
@@ -55,9 +44,13 @@ if (!baseUrl) {
 if (!paths) {
   throw new Error('compilerOptions.paths is not set');
 }
-if (!outDir) {
+if (!src && !rootDir) {
+  throw new Error('--src is not specified and compilerOptions.rootDir is not set');
+}
+if (!out && !outDir) {
   throw new Error('compilerOptions.outDir is not set');
 }
+
 logConsole(`baseUrl: ${baseUrl}`);
 logConsole(`outDir: ${outDir}`);
 logConsole(`paths: ${JSON.stringify(paths, null, 2)}`);
@@ -67,7 +60,10 @@ const configDir = dirname(configFile);
 const basePath = resolve(configDir, baseUrl);
 logConsole(`basePath: ${basePath}`);
 
-const outPath = outRoot || resolve(basePath, outDir);
+const srcRoot = resolve(src! || rootDir!);
+logConsole(`srcPath: ${srcRoot}`);
+
+const outPath = out ? resolve(out) : resolve(basePath, outDir!);
 logConsole(`outPath: ${outPath}`);
 
 const outFileToSrcFile = (x: string): string =>
