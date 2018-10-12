@@ -7,6 +7,12 @@ import { sync } from 'globby';
 import { dirname, relative, resolve } from 'path';
 import { loadConfig } from './util';
 
+const debug = false;
+
+function logConsole(...args: any[]): void {
+  if (debug) console.log(...args);
+}
+
 program
   .version('0.0.1')
   .option('-p, --project <file>', 'path to tsconfig.json')
@@ -14,7 +20,7 @@ program
   .option('-o, --out <path>', 'output root path');
 
 program.on('--help', () => {
-  console.log(`
+  logConsole(`
   $ tscpath -p tsconfig.json
 `);
 });
@@ -34,12 +40,12 @@ if (!src) {
 }
 
 const configFile = resolve(process.cwd(), project);
-console.log(`tsconfig.json: ${configFile}`);
+logConsole(`tsconfig.json: ${configFile}`);
 const srcRoot = resolve(src);
-console.log(`src: ${srcRoot}`);
+logConsole(`src: ${srcRoot}`);
 
 const outRoot = out && resolve(out);
-console.log(`out: ${outRoot}`);
+logConsole(`out: ${outRoot}`);
 
 const { baseUrl, outDir, paths } = loadConfig(configFile);
 
@@ -52,17 +58,17 @@ if (!paths) {
 if (!outDir) {
   throw new Error('compilerOptions.outDir is not set');
 }
-console.log(`baseUrl: ${baseUrl}`);
-console.log(`outDir: ${outDir}`);
-console.log(`paths: ${JSON.stringify(paths, null, 2)}`);
+logConsole(`baseUrl: ${baseUrl}`);
+logConsole(`outDir: ${outDir}`);
+logConsole(`paths: ${JSON.stringify(paths, null, 2)}`);
 
 const configDir = dirname(configFile);
 
 const basePath = resolve(configDir, baseUrl);
-console.log(`basePath: ${basePath}`);
+logConsole(`basePath: ${basePath}`);
 
 const outPath = outRoot || resolve(basePath, outDir);
-console.log(`outPath: ${outPath}`);
+logConsole(`outPath: ${outPath}`);
 
 const outFileToSrcFile = (x: string): string =>
   resolve(srcRoot, relative(outPath, x));
@@ -75,7 +81,7 @@ const aliases = Object.keys(paths)
     ),
   }))
   .filter(({ prefix }) => prefix);
-console.log(`aliases: ${JSON.stringify(aliases, null, 2)}`);
+logConsole(`aliases: ${JSON.stringify(aliases, null, 2)}`);
 
 const toRelative = (from: string, x: string): string => {
   const rel = relative(from, x);
@@ -93,8 +99,8 @@ const absToRel = (modulePath: string, outFile: string): string => {
       const modulePathRel = modulePath.substring(prefix.length);
       const srcFile = outFileToSrcFile(outFile);
       const outRel = relative(basePath, outFile);
-      console.log(`${outRel} (source: ${relative(basePath, srcFile)}):`);
-      console.log(`\timport '${modulePath}'`);
+      logConsole(`${outRel} (source: ${relative(basePath, srcFile)}):`);
+      logConsole(`\timport '${modulePath}'`);
       const len = aliasPaths.length;
       for (let i = 0; i < len; i += 1) {
         const apath = aliasPaths[i];
@@ -104,7 +110,7 @@ const absToRel = (modulePath: string, outFile: string): string => {
           exts.some((ext) => existsSync(moduleSrc + ext))
         ) {
           const rel = toRelative(dirname(srcFile), moduleSrc);
-          console.log(
+          logConsole(
             `\treplacing '${modulePath}' -> '${rel}' referencing ${relative(
               basePath,
               moduleSrc
@@ -113,7 +119,7 @@ const absToRel = (modulePath: string, outFile: string): string => {
           return rel;
         }
       }
-      console.log(`\tcould not replace ${modulePath}`);
+      logConsole(`\tcould not replace ${modulePath}`);
     }
   }
   return modulePath;
