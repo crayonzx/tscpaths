@@ -1,5 +1,5 @@
 {
-  "name": "tscpaths",
+  "name": "@crayonzx/tscpaths",
   "version": "0.0.5",
   "description": "Replace absolute paths to relative paths after typescript compilation",
   "main": "cjs/index.js",
