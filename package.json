@@ -12,7 +12,7 @@
     "build": "npm run build:esm && npm run build:cjs",
     "build:esm": "tsc -p ./tsconfig.esm.json",
     "build:cjs": "tsc -p ./tsconfig.cjs.json",
-    "clear": "rm -rf ./lib ./cjs ./coverage",
+    "clear": "rimraf lib cjs coverage",
     "format": "prettier --write \"./*.{js,jsx,ts,tsx}\" \"./src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "tslint -c ./tslint.json \"src/**/*\"",
     "lint:fix": "tslint --fix -c ./tslint.json \"src/**/*\"",
@@ -22,7 +22,7 @@
     "test:watch": "jest --watch",
     "preinstall": "npm run clear && npm run build"
   },
-  "files": ["lib"],
+  "files": ["lib", "cjs"],
   "repository": {
     "type": "git",
     "url": "https://github.com/joonhocho/tscpaths.git"
@@ -49,6 +49,7 @@
     "@types/node": "^10.11.3",
     "jest": "^23.4.2",
     "prettier": "^1.14.0",
+    "rimraf": "^2.6.2",
     "ts-jest": "^23.0.1",
     "tslint": "^5.11.0",
     "tslint-config-airbnb": "^5.9.2",
